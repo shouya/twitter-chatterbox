@@ -10,7 +10,7 @@ require_relative 'twitter_api'
 
 @data_file = './data/saved.data'
 
-@starter = '54c3'
+@starter = 'meowdan'
 
 MAX_DEPTH = 1
 
@@ -117,6 +117,13 @@ def main
     load_data
     begin
         start_from_someone(@starter)
+    rescue HTTPException => e
+        res = e.http_response
+        if res.code.to_i == 400 and res['X-Ratelimit-Remaining'] == '0'
+            puts "Congrats, your api's rate limit is exceeded."
+            puts "Try to change api or wait until %s." % \
+                Time.at(res['X-Ratelimit-Reset']).to_s
+        end
     ensure
         store_data
     end
